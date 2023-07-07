@@ -1,6 +1,5 @@
 package com.example.cmsjetpack.screens.user.add
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,10 +52,8 @@ import kotlinx.coroutines.launch
 fun UserAddSheet(
     viewModel: UserAddSheetViewModel = hiltViewModel(),
     showSheet: MutableState<Boolean>,
-    onSuccess: () -> Unit,
-    going: Boolean
+    onSuccess: () -> Unit
 ) {
-    Log.d("coming", "$going")
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(
@@ -67,6 +64,10 @@ fun UserAddSheet(
     )
     val state by viewModel.eventSuccess.collectAsState()
 
+    LaunchedEffect(state) {
+        onSuccess()
+    }
+
     val goBack: () -> Unit = {
         scope.launch {
             bottomSheetState.hide()
@@ -75,11 +76,6 @@ fun UserAddSheet(
                 showSheet.value = false
             }
         }
-    }
-
-    LaunchedEffect(key1 = state) {
-        goBack()
-        onSuccess()
     }
 
     ModalBottomSheet(
@@ -96,6 +92,7 @@ fun UserAddSheet(
                     status
                 )
             }
+
         )
     }
 }
@@ -168,6 +165,9 @@ fun UserAddSheetSkeleton(
                 ),
                 singleLine = true
             )
+            /**Didn't understand
+             *
+             */
             ExposedDropdownMenuBox(
                 expanded = genderDropdownExpended,
                 onExpandedChange = {

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.cmsjetpack.screens.user.edit.UserEditSheet
 
 @Composable
 fun UserDetailsScreen(
@@ -48,12 +49,9 @@ fun UserDetailsScreen(
 
     val data by viewModel.userData.collectAsState()
 
-    // Edit bottom-sheet er kaj baki
-
     LaunchedEffect(Unit) {
         viewModel.getUserData(userId)
     }
-
     UserDetailsScreenSkeleton(
         name = data.name,
         email = data.email,
@@ -67,6 +65,17 @@ fun UserDetailsScreen(
             viewModel.getUserData(userId)
         }
     )
+    if (openEditUserSheet.value) {
+        UserEditSheet(
+            showEditSheet = openEditUserSheet,
+            userId = data.id,
+            onSuccess = {
+                viewModel.getUserData(userId)
+            }
+        )
+    } else {
+        viewModel.getUserData(userId)
+    }
 }
 
 @Preview
@@ -172,7 +181,7 @@ fun UserDetailsScreenSkeleton(
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1f),
-                    onClick = { onEditClicked() }
+                    onClick = { }
                 ) {
                     Icon(
                         Icons.Filled.Delete,
@@ -185,7 +194,9 @@ fun UserDetailsScreenSkeleton(
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1f),
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        onEditClicked()
+                    }
                 ) {
                     Icon(
                         Icons.Filled.Edit,
