@@ -14,14 +14,14 @@ class ApiClient {
                 .addInterceptor(
                     HttpLoggingInterceptor().apply {
                         this.level = HttpLoggingInterceptor.Level.BODY
-                    },
+                    }
                 )
                 .addInterceptor { chain ->
                     val request = chain.request().newBuilder()
                         .addHeader("Accept", "application/json")
                         .addHeader(
                             "Authorization",
-                            "Bearer ${Constants.Token}",
+                            "Bearer ${Constants.Token}"
                         )
                         .build()
 

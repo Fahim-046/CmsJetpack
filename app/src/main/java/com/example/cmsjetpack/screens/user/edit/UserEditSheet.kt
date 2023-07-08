@@ -64,6 +64,8 @@ fun UserEditSheet(
 
     val user by viewModel.userData.collectAsState()
 
+    val updated by viewModel.evenSuccess.collectAsState()
+
     val goBack: () -> Unit = {
         scope.launch {
             bottomSheetState.hide()
@@ -76,6 +78,13 @@ fun UserEditSheet(
 
     LaunchedEffect(Unit) {
         viewModel.userDetails(userId)
+    }
+
+    LaunchedEffect(updated) {
+        if (updated) {
+            onSuccess() // viewModel.getUserDetails(userId)
+            goBack()
+        }
     }
 
     ModalBottomSheet(
@@ -94,7 +103,9 @@ fun UserEditSheet(
                     status
                 )
             },
-            onSuccess = onSuccess
+            reload = {
+                viewModel.userDetails(userId)
+            }
         )
     }
 }
@@ -123,7 +134,7 @@ fun UserEditSheetSkeleton(
         gender: String,
         status: String
     ) -> Unit = { _, _, _, _ -> },
-    onSuccess: () -> Unit = {}
+    reload: () -> Unit = {}
 
 ) {
     val scrollState = rememberScrollState()
@@ -262,8 +273,6 @@ fun UserEditSheetSkeleton(
                     selectedGenderOption,
                     selectedStatusOption
                 )
-                onSuccess()
-                goBack()
             }) {
                 Icon(Icons.Filled.Done, contentDescription = "Update user")
                 Spacer(modifier = Modifier.width(2.dp))

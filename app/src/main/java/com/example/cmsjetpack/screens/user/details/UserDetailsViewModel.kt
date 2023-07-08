@@ -17,11 +17,15 @@ class UserDetailsViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
 
-    private val _userData =
-        MutableStateFlow<User>(User("", "", 0, "", ""))
+    private val _userData = MutableStateFlow<User>(User("", "", 0, "", ""))
 
     val userData: StateFlow<User>
         get() = _userData
+
+    private val _eventDeleteSuccess = MutableStateFlow<Boolean>(false)
+
+    val eventDeleteSuccess: StateFlow<Boolean>
+        get() = _eventDeleteSuccess
 
     fun getUserData(id: Int) = viewModelScope.launch {
         try {
@@ -30,6 +34,17 @@ class UserDetailsViewModel @Inject constructor(
             _userData.value = response!!
         } catch (e: ApiException) {
             Timber.e("The error is $e")
+        }
+    }
+
+    fun deleteUser(
+        id: Int
+    ) = viewModelScope.launch {
+        try {
+            val response = repository.deleteUser(id)
+            _eventDeleteSuccess.value = true
+        } catch (e: ApiException) {
+            Timber.e("${e.message}")
         }
     }
 }

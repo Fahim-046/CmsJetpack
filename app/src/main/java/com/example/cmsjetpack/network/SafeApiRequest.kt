@@ -1,11 +1,11 @@
 package com.example.cmsjetpack.network
 
 import android.content.Context
+import java.net.HttpURLConnection
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.Response
 import timber.log.Timber
-import java.net.HttpURLConnection
 
 object SafeApiRequest {
     suspend fun <T : Any?> apiRequest(context: Context, call: suspend () -> Response<T>): T? {

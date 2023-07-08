@@ -22,7 +22,7 @@ interface UserInterface {
     @PUT("v2/users/{id}")
     suspend fun updateUser(
         @Path("id") userId: Int,
-        @Body userItem: User,
+        @Body userItem: User
     ): Response<User>
 
     @DELETE("v2/users/{id}")

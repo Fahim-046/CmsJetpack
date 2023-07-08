@@ -51,6 +51,7 @@ class UserAddSheetViewModel @Inject constructor(
         if (!isValid(name, email, gender, status)) {
             return@launch
         }
+        _eventSuccess.value = false
 
         try {
             val newUser = repository.createUser(

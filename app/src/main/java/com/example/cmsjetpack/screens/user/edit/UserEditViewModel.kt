@@ -58,6 +58,7 @@ class UserEditViewModel @Inject constructor(
         } catch (e: ApiException) {
             Timber.e("${e.message}")
         }
+        _eventSuccess.value = false
     }
 
     fun updateUser(

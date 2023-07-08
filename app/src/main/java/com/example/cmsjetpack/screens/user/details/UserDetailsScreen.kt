@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -29,7 +31,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -39,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cmsjetpack.screens.user.edit.UserEditSheet
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDetailsScreen(
     viewModel: UserDetailsViewModel,
@@ -46,11 +51,19 @@ fun UserDetailsScreen(
     goBack: () -> Unit
 ) {
     val openEditUserSheet = rememberSaveable { mutableStateOf(false) }
+    var openDeleteDialog by remember { mutableStateOf(false) }
 
     val data by viewModel.userData.collectAsState()
+    val deleteSuccess by viewModel.eventDeleteSuccess.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getUserData(userId)
+    }
+
+    LaunchedEffect(key1 = deleteSuccess) {
+        if (deleteSuccess) {
+            goBack()
+        }
     }
     UserDetailsScreenSkeleton(
         name = data.name,
@@ -61,10 +74,41 @@ fun UserDetailsScreen(
         onEditClicked = {
             openEditUserSheet.value = !openEditUserSheet.value
         },
+        onDeleteClicked = {
+            openDeleteDialog = !openDeleteDialog
+        },
         retryDataLoad = {
             viewModel.getUserData(userId)
         }
     )
+    if (openDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { openDeleteDialog = false },
+            title = {
+                Text(text = "Delete")
+            },
+            text = { Text(text = "Are you sure you want to delete this user?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDeleteDialog = false
+                        viewModel.deleteUser(userId)
+                    }
+                ) {
+                    Text(text = "Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    openDeleteDialog = false
+                }) {
+                    Text(text = "No")
+                }
+            }
+
+        )
+    }
+
     if (openEditUserSheet.value) {
         UserEditSheet(
             showEditSheet = openEditUserSheet,
@@ -73,8 +117,6 @@ fun UserDetailsScreen(
                 viewModel.getUserData(userId)
             }
         )
-    } else {
-        viewModel.getUserData(userId)
     }
 }
 
@@ -98,6 +140,7 @@ fun UserDetailsScreenSkeleton(
     status: String,
     goBack: () -> Unit = {},
     onEditClicked: () -> Unit = {},
+    onDeleteClicked: () -> Unit = {},
     retryDataLoad: () -> Unit = {}
 ) {
     Scaffold(
@@ -181,7 +224,7 @@ fun UserDetailsScreenSkeleton(
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1f),
-                    onClick = { }
+                    onClick = { onDeleteClicked() }
                 ) {
                     Icon(
                         Icons.Filled.Delete,
